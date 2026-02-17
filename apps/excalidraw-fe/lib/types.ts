@@ -29,3 +29,5 @@ interface MessageType {
     userId: string,
     createdAt: string
 }
+
+type SelectedToolType = 'circle' | 'rect' | 'line'
