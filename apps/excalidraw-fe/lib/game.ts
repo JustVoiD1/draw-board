@@ -1,3 +1,4 @@
+import { X } from "lucide-react"
 import { getExistingShapes } from "./http"
 
 export class Game {
@@ -6,11 +7,19 @@ export class Game {
     private existingShapes: Shape[]
     private roomId: string
     private socket: WebSocket
-
+    private dragEndX = 0
+    private dragEndY= 0
     private mouseDown: boolean
     private startX = 0
     private startY = 0
     private selectedTool: SelectedToolType
+    private getPoint(e: MouseEvent) {
+        const rect = this.canvas.getBoundingClientRect()
+        return {
+            x: e.clientX - rect.left,
+            y: e.clientY - rect.top
+        }
+    }
 
     constructor(canvas: HTMLCanvasElement, roomId: string, socket: WebSocket) {
         this.canvas = canvas
@@ -22,7 +31,7 @@ export class Game {
         this.init()
         this.initHandlers()
         this.initMouseHandlers()
-        this.selectedTool = 'circle'
+        this.selectedTool = 'rect'
 
     }
     async init() {
@@ -39,13 +48,15 @@ export class Game {
     }
     mouseDownHandler = (e: MouseEvent) => {
         this.mouseDown = true
-        this.startX = e.clientX
-        this.startY = e.clientY
+        const { x, y } = this.getPoint(e)
+        this.startX = x
+        this.startY = y
     }
     mouseUpHandler = (e: MouseEvent) => {
         this.mouseDown = false
-        const height = e.clientY - this.startY
-        const width = e.clientX - this.startX
+        const { x, y } = this.getPoint(e)
+        const height = y - this.startY
+        const width = x - this.startX
         let shape: Shape | null = null
         if (this.selectedTool === 'rect') {
             shape = {
@@ -72,10 +83,11 @@ export class Game {
                 type: 'line',
                 initialX: this.startX,
                 initialY: this.startY,
-                finalX: e.clientX,
-                finalY: e.clientY
+                finalX: x,
+                finalY: y
             }
         }
+        
         // console.log(e.clientX, e.clientY)
         if (!shape) {
             return
@@ -88,33 +100,45 @@ export class Game {
         }))
     }
     mouseMoveHandler = (e: MouseEvent) => {
-        if (this.mouseDown) {
-            const width = e.clientX - this.startX
-            const height = e.clientY - this.startY
-            this.clearCanvas()
-            this.ctx.strokeStyle = "rgba(255, 255, 255)"
-            console.log(this.selectedTool)
-            if (this.selectedTool === 'rect') {
-                this.ctx.strokeRect(this.startX, this.startY, width, height)
-            }
-            else if (this.selectedTool === 'circle') {
-                const centerX = this.startX + width / 2
-                const centerY = this.startY + height / 2
-                const radius = Math.max(Math.abs(width), Math.abs(height)) / 2
-                this.ctx.beginPath()
-                this.ctx.arc(centerX, centerY, radius, 0, Math.PI * 2)
-                this.ctx.stroke()
-            }
-            else if (this.selectedTool === 'line') {
-                this.ctx.beginPath()
-                this.ctx.moveTo(this.startX, this.startY)
-                this.ctx.lineTo(e.clientX, e.clientY)
-                this.ctx.stroke()
-
-            }
-
-            // console.log(e.clientX, e.clientY)
+        if (!this.mouseDown) {
+            return
         }
+        const { x, y } = this.getPoint(e)
+        const width = x - this.startX
+        const height = y - this.startY
+        this.clearCanvas()
+        this.ctx.strokeStyle = "rgba(255, 255, 255)"
+        console.log(this.selectedTool)
+        if (this.selectedTool === 'rect') {
+            this.ctx.strokeRect(this.startX, this.startY, width, height)
+        }
+        else if (this.selectedTool === 'circle') {
+            const centerX = this.startX + width / 2
+            const centerY = this.startY + height / 2
+            const radius = Math.max(Math.abs(width), Math.abs(height)) / 2
+            this.ctx.beginPath()
+            this.ctx.arc(centerX, centerY, radius, 0, Math.PI * 2)
+            this.ctx.stroke()
+        }
+        else if (this.selectedTool === 'line') {
+            this.ctx.beginPath()
+            this.ctx.moveTo(this.startX, this.startY)
+            this.ctx.lineTo(e.clientX, e.clientY)
+            this.ctx.stroke()
+
+        }
+        else if (this.selectedTool === 'pan') {
+            if (this.mouseDown) {
+                this.dragEndX = e.pageX - this.canvas.offsetLeft
+                this.dragEndY = e.pageY - this.canvas.offsetLeft
+                this.ctx.translate(this.dragEndX - this.startX, this.dragEndY - this.startY);
+                this.startX = this.dragEndX
+                this.startY = this.dragEndY
+                this.clearCanvas()
+            }
+        }
+
+        // console.log(e.clientX, e.clientY)
     }
     initHandlers() {
         this.socket.onmessage = (event) => {
@@ -173,4 +197,6 @@ export class Game {
 
 
 
+
 }
+

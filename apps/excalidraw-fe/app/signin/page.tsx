@@ -33,7 +33,8 @@ export async function SignIn(formData: FormData) {
     }
     if (isSuccess) {
         
-        redirect('/canvas/chat-room-1')
+        // redirect('/canvas/chat-room-1')
+        redirect('/dashboard')
     }
 
 

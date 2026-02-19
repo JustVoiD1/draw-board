@@ -30,4 +30,4 @@ interface MessageType {
     createdAt: string
 }
 
-type SelectedToolType = 'circle' | 'rect' | 'line'
+type SelectedToolType = 'circle' | 'rect' | 'line' | 'pan'

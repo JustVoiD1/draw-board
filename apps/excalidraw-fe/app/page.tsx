@@ -58,7 +58,7 @@ export default function Home() {
                 Draw diagrams, brainstorm ideas, and bring your team together in real-time.
               </p>
               <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
-                <Link href={'/canvas/chat-room-1'}>
+                <Link href={'/dashboard'}>
                   <Button size="lg" className="text-base px-8 py-6 bg-slate-900 hover:bg-slate-800 text-white dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100">
                     Start Drawing Now
                     <ArrowRight className="ml-2 h-5 w-5" />

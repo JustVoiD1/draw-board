@@ -1,6 +1,5 @@
 'use client'
-import { initDraw } from "@/lib/draw"
-import { Circle, RectangleHorizontalIcon, Slash } from "lucide-react"
+import { Circle, Hand, RectangleHorizontalIcon, Slash } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
 import IconButton from "./icon-button"
 import { Game } from "@/lib/game"
@@ -22,13 +21,15 @@ export default function Canvas({ roomId, socket }: { roomId: string, socket: Web
             // initDraw(canvas, roomId, socket)
             return () => {
                 g.destroy()
+
             }
         }
+
     }, [canvasRef])
 
     return <div className="fixed inset-0 overflow-hidden bg-background">
-        <div className="absolute top-4 left-4 z-10 flex gap-2 w-full justify-center items-center">
-            <div className="flex justify-center items-center gap-3 backdrop-blur-md">
+        <div className="absolute z-10 top-4 left-4 flex gap-2 w-full justify-center items-center">
+            <div className="absolute flex justify-center items-center gap-3 backdrop-blur-md">
                 <IconButton
                     activated={selectedTool === 'circle'}
                     onClick={() => {
@@ -47,6 +48,12 @@ export default function Canvas({ roomId, socket }: { roomId: string, socket: Web
                         setselectedTool('line')
                     }
                 ><Slash strokeWidth={3} /></IconButton>
+                {/* <IconButton
+                    activated={selectedTool === 'pan'}
+                    onClick={() =>
+                        setselectedTool('pan')
+                    }
+                >< Hand strokeWidth={3} /></IconButton> */}
 
             </div>
         </div>

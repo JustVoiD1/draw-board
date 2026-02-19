@@ -182,6 +182,32 @@ app.post('/room', authMiddleware, async (req, res) => {
 
 })
 
+app.get('/rooms', authMiddleware, async (req, res) => {
+    const userId = req.userId
+    try {
+        const rooms = await prisma.room.findMany({
+            where: {
+                adminId: userId
+            }
+        }) 
+        res.json({
+            success: true,
+            rooms: rooms.map((r) => ({
+                    slug: r.slug,
+                    createdAt: r.createdAt
+                
+            }))
+        })
+        
+    } catch (err) {
+        console.error('Error fetching rooms', err)
+        res.status(500).json({
+            success: false,
+            error: 'Rooms fetching error'
+        })
+    }
+})
+
 app.get(`/chats/:roomId`, async (req, res) => {
     const roomId = Number(req.params.roomId)
     try {
