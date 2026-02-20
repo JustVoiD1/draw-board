@@ -102,12 +102,13 @@ app.post('/signin', async (req, res) => {
                 success: false
             })
         }
-        const isPasswordVerified = comparePassword(password, user.password)
+        const isPasswordVerified = await comparePassword(password, user.password)
         if (!isPasswordVerified) {
             res.status(403).json({
                 success: false,
                 error: "Invalid Credentials"
             })
+            return
         }
 
         const token = jwt.sign({

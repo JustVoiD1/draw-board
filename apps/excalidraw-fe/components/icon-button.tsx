@@ -13,9 +13,9 @@ export default function IconButton({
     onClick?:  MouseEventHandler<HTMLButtonElement>;
 
 }) {
-    return <Button variant={'outline'} 
-    className={`rounded-lg bg-background ${activated ? 'text-blue-500' : 'text-foreground'}`}
+    return <button 
+    className={`rounded-lg hover:cursor-pointer px-1 py-1 bg-background border-2 border-muted-foreground ${activated ? 'text-blue-500' : 'text-foreground'}`}
     onClick={onClick}
-    >{children}</Button>
+    >{children}</button>
 
 }

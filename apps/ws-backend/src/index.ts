@@ -11,7 +11,7 @@ interface User {
     userId: string
 }
 
-const users: User[] = []
+let users: User[] = []
 
 
 
@@ -56,7 +56,10 @@ wss.on('connection', function connection(ws, request) {
     })
 
     ws.on('error', console.error)
-
+    ws.on('close', function close() {
+        users = users.filter(u => u.ws !== ws)
+        console.log("Users: ", users.length)
+    })
     ws.on('message', async function message(data) {
         // {
         //     type: 'join_room',
@@ -73,11 +76,12 @@ wss.on('connection', function connection(ws, request) {
         if (parsedData.type === 'leave_room') {
             console.log('leave message')
             const user = users.find(x => x.ws === ws);
+            console.log(`user found`)
             if (!user) {
                 return
             }
             user.rooms = user.rooms.filter(x => x !== parsedData.roomId)
-            console.log("Users: ", users.length)
+
         }
         if (parsedData.type === 'chat') {
             const roomId = parsedData.roomId
@@ -100,6 +104,28 @@ wss.on('connection', function connection(ws, request) {
                 }
             })
 
+        }
+        if(parsedData.type === 'erase') {
+            const roomId = parsedData.roomId
+            const shape = parsedData.shape
+            const shapeIndex = parsedData.shapeIndex
+
+            users.forEach((user: User) => {
+                if (user.rooms.includes(roomId) && user.ws !== ws) {
+                    user.ws.send(JSON.stringify({
+                        type: 'erase',
+                        shape,
+                        shapeIndex,
+                        roomId
+                    }))
+                }
+            })
+            await prisma.chat.deleteMany({
+                where: {
+                    message: parsedData.shape,
+                    roomId: parsedData.roomId
+                }
+            })
         }
     })
 

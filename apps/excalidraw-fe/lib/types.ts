@@ -1,4 +1,4 @@
-type Shape = Rectangle | Circle | Line
+type Shape = Rectangle | Circle | Line | Pencil
 type Rectangle = {
     type: "rect",
     x: number,
@@ -22,6 +22,14 @@ type Line = {
     finalY: number
 
 }
+
+type Pencil = {
+  type: "pencil"
+  points: { x: number; y: number }[]
+  strokeWidth: number
+  color: string
+}
+
 interface MessageType {
     id: number,
     message: string,
@@ -30,4 +38,10 @@ interface MessageType {
     createdAt: string
 }
 
-type SelectedToolType = 'circle' | 'rect' | 'line' | 'pan'
+type SelectedToolType = 'circle' | 'rect' | 'line' | 'pan' | 'eraser' | 'pencil' | 'undo' | 'redo'
+
+type Room = {
+    slug: string
+    createdAt: string
+}
+
