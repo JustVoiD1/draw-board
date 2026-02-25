@@ -12,20 +12,20 @@ import {
 import { Field } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { createRoom } from "@/lib/actions"
+import { joinRoom } from "@/lib/actions"
 
-export default function CreateRoomButton() {
+export default function JoinRoomButton() {
     return (
         <Dialog>
             <DialogTrigger asChild>
-                <Button variant="ghost" className="bg-green-600 text-background dark:text-foreground hover:bg-green-200 hover:dark:bg-green-900">Create Room</Button>
+                <Button variant="ghost" className="bg-primary text-background dark:text-foreground ">Join Room</Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-sm">
-                <form action={createRoom}>
+                <form action={joinRoom}>
                     <DialogHeader>
-                        <DialogTitle>Create Room</DialogTitle>
+                        <DialogTitle>Join a Room</DialogTitle>
                         <DialogDescription>
-                            Give a unique name without spaces
+                            Enter the room name to join
                         </DialogDescription>
                     </DialogHeader>
                     <Field>
@@ -38,7 +38,7 @@ export default function CreateRoomButton() {
                                 <Button variant="outline" type="button">Cancel</Button>
                             </DialogClose>
                             <DialogClose asChild>
-                                <Button variant="default" type="submit">Create</Button>
+                                <Button variant="default" type="submit">Join</Button>
                             </DialogClose>
                     </DialogFooter>
                 </form>

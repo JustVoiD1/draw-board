@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import { WS_URL } from "@/config"
 import Canvas from "./canvas"
 import { getToken } from "@/lib/actions"
+import { Loader2 } from "lucide-react"
 
 export default function RoomCanvas({ roomId }: { roomId: string }) {
     const [socket, setSocket] = useState<WebSocket | null>(null)
@@ -25,6 +26,7 @@ export default function RoomCanvas({ roomId }: { roomId: string }) {
 
         }
 
+
         connectSocket()
 
         return () => {
@@ -41,8 +43,14 @@ export default function RoomCanvas({ roomId }: { roomId: string }) {
 
 
     if (!socket) {
-        return <div>
-            Connecting...
+        return <div className="h-screen w-screen flex justify-center items-center gap-2">
+            <h1 className="text-xl text-muted-foreground">Connecting...</h1> <Loader2 className="text-primary animate-spin" />
+        </div>
+    }
+
+    if (socket.readyState === WebSocket.CLOSED) {
+        return <div className="h-screen w-screen flex justify-center items-center">
+            <span className="text-destructive">Websocket connection closed</span>
         </div>
     }
 

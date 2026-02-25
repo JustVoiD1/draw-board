@@ -38,7 +38,7 @@ interface MessageType {
     createdAt: string
 }
 
-type SelectedToolType = 'circle' | 'rect' | 'line' | 'pan' | 'eraser' | 'pencil' | 'undo' | 'redo'
+type SelectedToolType = 'circle' | 'rect' | 'line' | 'eraser' | 'pencil'
 
 type Room = {
     slug: string

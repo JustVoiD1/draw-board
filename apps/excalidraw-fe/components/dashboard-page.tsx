@@ -8,6 +8,7 @@ import { Menu, Pencil, User } from "lucide-react"
 import { getRooms } from "@/lib/actions"
 import Link from "next/link"
 import  CreateRoomButton  from "./create-room-button"
+import JoinRoomButton from "./join-room-button"
 
 const DashboardPage = async () => {
     const rooms = await getRooms()
@@ -33,8 +34,9 @@ const DashboardPage = async () => {
                                 </div></SheetTitle>
                             </SheetHeader>
                             <SheetContent side="left" className="w-64">
-                                <nav className="mt-6 space-y-2">
+                                <nav className="mt-10 space-y-2 flex flex-col gap-3 px-2 ">
                                     <CreateRoomButton/>
+                                    <JoinRoomButton/>
                                     <Link href='/profile' >
                                         <Button variant="ghost" className="w-full justify-start">Profile</Button>
                                     </Link>

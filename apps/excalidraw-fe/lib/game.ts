@@ -8,12 +8,13 @@ export class Game {
     private socket: WebSocket
     private dragEndX = 0
     private dragEndY = 0
+
     private mouseDown: boolean
     private startX = 0
     private startY = 0
-    private history: Shape[][] = []
-    private redoStack: Shape[][] = []
-    private maxHistorySize = 50
+    // private history: Shape[][] = []
+    // private redoStack: Shape[][] = []
+    // private maxHistorySize = 50
     private selectedTool: SelectedToolType
     private eraserRadius = 5 // Eraser detection radius
     private getPoint(e: MouseEvent) {
@@ -178,16 +179,16 @@ export class Game {
         return false
     }
 
-    private pushHistory() {
-        if (this.existingShapes.length >= 0) {
+    // private pushHistory() {
+    //     if (this.existingShapes.length >= 0) {
 
-            this.history.push(structuredClone(this.existingShapes))
-            if (this.history.length > this.maxHistorySize) {
-                this.history.shift()
-            }
-            this.redoStack = []
-        }
-    }
+    //         this.history.push(structuredClone(this.existingShapes))
+    //         if (this.history.length > this.maxHistorySize) {
+    //             this.history.shift()
+    //         }
+    //         this.redoStack = []
+    //     }
+    // }
 
     constructor(canvas: HTMLCanvasElement, roomId: string, socket: WebSocket) {
         this.canvas = canvas
@@ -206,9 +207,9 @@ export class Game {
     }
     async init() {
         this.existingShapes = await getExistingShapes(this.roomId)
-        this.pushHistory()
+        // this.pushHistory()
         this.clearCanvas()
-        
+
 
     }
     destroy() {
@@ -226,8 +227,6 @@ export class Game {
         this.startY = y
 
         if (this.selectedTool === 'pencil') {
-            this.pushHistory()
-
             const pencil: Pencil = {
                 type: "pencil",
                 points: [{ x, y }],
@@ -281,20 +280,22 @@ export class Game {
                     message: JSON.stringify(last),
                     roomId: this.roomId
                 }))
+                // this.pushHistory()
             }
+            return
         }
 
         // console.log(e.clientX, e.clientY)
         if (!shape) {
             return
         }
-        this.pushHistory()
         this.existingShapes.push(shape)
         this.socket.send(JSON.stringify({
             type: "chat",
             message: JSON.stringify(shape),
             roomId: this.roomId
         }))
+        // this.pushHistory()
     }
     mouseMoveHandler = (e: MouseEvent) => {
         if (!this.mouseDown) {
@@ -316,7 +317,6 @@ export class Game {
 
             // Remove shapes and notify via WebSocket
             if (shapesToRemove.length > 0) {
-                this.pushHistory()
                 // Remove from back to front to maintain indices
                 for (let i = shapesToRemove.length - 1; i >= 0; i--) {
                     const removedShape = this.existingShapes.splice(shapesToRemove[i], 1)[0]
@@ -328,6 +328,7 @@ export class Game {
                         roomId: this.roomId
                     }))
                 }
+                // this.pushHistory()
                 this.clearCanvas()
             }
 
@@ -356,7 +357,7 @@ export class Game {
         else if (this.selectedTool === 'line') {
             this.ctx.beginPath()
             this.ctx.moveTo(this.startX, this.startY)
-            this.ctx.lineTo(e.clientX, e.clientY)
+            this.ctx.lineTo(x, y)
             this.ctx.stroke()
 
         }
@@ -366,16 +367,6 @@ export class Game {
                 last.points.push({ x, y })
             }
             return
-        }
-        else if (this.selectedTool === 'pan') {
-            if (this.mouseDown) {
-                this.dragEndX = e.pageX - this.canvas.offsetLeft
-                this.dragEndY = e.pageY - this.canvas.offsetLeft
-                this.ctx.translate(this.dragEndX - this.startX, this.dragEndY - this.startY);
-                this.startX = this.dragEndX
-                this.startY = this.dragEndY
-                this.clearCanvas()
-            }
         }
 
         // console.log(e.clientX, e.clientY)
@@ -405,8 +396,9 @@ export class Game {
     // clearCanvas(existingShapes: Shape[] = [], canvas: HTMLCanvasElement) {
     clearCanvas() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
-        this.ctx.fillStyle = ('rgba(3, 7, 18)')
+        this.ctx.fillStyle = ('rgba(0, 0, 0)')
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height)
+
 
         this.existingShapes.map((shape) => {
             if (shape.type === "rect") {
@@ -445,6 +437,8 @@ export class Game {
             }
 
         })
+
+        this.ctx.restore()
     }
     initMouseHandlers() {
         this.canvas.addEventListener('mousedown', this.mouseDownHandler)
@@ -458,38 +452,39 @@ export class Game {
         this.selectedTool = tool
 
     }
-    public undo(): void {
 
-        if (this.history.length < 2) return
-        this.redoStack.push(structuredClone(this.existingShapes))
-        this.history.pop()
-        this.existingShapes = structuredClone(this.history[this.history.length - 1])
-        this.clearCanvas()
+    // public undo(): void {
 
-        console.log(this.existingShapes)
+    //     if (this.history.length < 2) return
+    //     this.redoStack.push(structuredClone(this.existingShapes))
+    //     this.history.pop()
+    //     this.existingShapes = structuredClone(this.history[this.history.length - 1])
+    //     this.clearCanvas()
 
-        this.socket.send(JSON.stringify({
-            type: "sync_shapes",
-            shapes: this.existingShapes,
-            roomId: this.roomId
-        }))
-    }
+    //     console.log(this.existingShapes)
 
-    public redo(): void {
-        if (this.redoStack.length === 0) return
-        this.history.push(structuredClone(this.existingShapes))
-        this.existingShapes = structuredClone(this.redoStack.pop()!)
-        this.clearCanvas()
+    //     this.socket.send(JSON.stringify({
+    //         type: "sync_shapes",
+    //         shapes: this.existingShapes,
+    //         roomId: this.roomId
+    //     }))
+    // }
 
-        console.log(this.existingShapes)
+    // public redo(): void {
+    //     if (this.redoStack.length === 0) return
+    //     this.history.push(structuredClone(this.existingShapes))
+    //     this.existingShapes = structuredClone(this.redoStack.pop()!)
+    //     this.clearCanvas()
 
-        this.socket.send(JSON.stringify({
-            type: "sync_shapes",
-            shapes: this.existingShapes,
-            roomId: this.roomId
-        }))
+    //     console.log(this.existingShapes)
 
-    }
+    //     this.socket.send(JSON.stringify({
+    //         type: "sync_shapes",
+    //         shapes: this.existingShapes,
+    //         roomId: this.roomId
+    //     }))
+
+    // }
 
 
 

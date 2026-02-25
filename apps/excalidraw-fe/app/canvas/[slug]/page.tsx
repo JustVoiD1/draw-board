@@ -1,5 +1,6 @@
 import RoomCanvas from "@/components/room-canvas"
 import { BACKEND_URL } from "@/config"
+import { Authenticate } from "@/lib/actions"
 import axios from "axios"
 
 async function getRoomId(slug: string) {
@@ -11,6 +12,7 @@ async function getRoomId(slug: string) {
 export default async function page(
     { params }: { params: Promise<{ slug: string }> }
 ) {
+    await Authenticate()
     const { slug } = await params
     const roomId = await getRoomId(slug)
     console.log(roomId)

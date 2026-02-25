@@ -26,6 +26,7 @@ export async function SignIn(formData: FormData) {
                 secure: false,
                 sameSite: "lax",
                 path: "/",
+                maxAge: 24 * 60 * 60
             })
 
         }
