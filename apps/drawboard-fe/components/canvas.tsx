@@ -1,5 +1,5 @@
 'use client'
-import { Circle, Eraser, Hand, Pencil, PencilIcon, RectangleHorizontalIcon, Slash, User } from "lucide-react"
+import { Circle, Eraser, Hand, MousePointer2, Pencil, PencilIcon, RectangleHorizontalIcon, Slash, User } from "lucide-react"
 import { ReactNode, useEffect, useRef, useState } from "react"
 import IconButton from "./icon-button"
 import { Game } from "@/lib/game"
@@ -25,6 +25,9 @@ export default function Canvas({ roomId, socket }: { roomId: string, socket: Web
         }, {
             tool: 'eraser',
             icon: <Eraser />
+        }, {
+            tool: 'selection',
+            icon: <MousePointer2/>
         }
     ]
 
@@ -33,7 +36,8 @@ export default function Canvas({ roomId, socket }: { roomId: string, socket: Web
         rect: "cursor-crosshair",
         line: "cursor-crosshair",
         eraser: "cursor-[url('/eraser-cursor.svg')_6_6,auto]",
-        pencil: "cursor-[url('/pencil-cursor.svg')_3_22,auto]"
+        pencil: "cursor-[url('/pencil-cursor.svg')_3_22,auto]",
+        selection: "cursor-move",
     }
     // const [game, setGame] = useState<Game>()
     const gameRef = useRef<Game>(null)

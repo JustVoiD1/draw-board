@@ -28,6 +28,53 @@ app.get(`/me`, authMiddleware, async (req, res) => {
 
     })
 })
+app.get('/account', authMiddleware, async (req, res) => {
+    const userId = req.userId
+    const userDetails = await prisma.user.findFirst({
+        where: {
+            id: userId
+        }, omit: {
+            id: true,
+            password: true
+        }
+    })
+    if (!userDetails) {
+        return res.status(404).json({
+            success: false,
+            error: 'No such user'
+        })
+    }
+    const joinedAt = new Date(userDetails.joinedAt)
+    const formmatDate = (date: Date) => date.toLocaleDateString('en-GB').replace(/(\d{4})$/, (year) => year.slice(-2));
+
+    const recentRooms = await prisma.room.findMany({
+        where: {
+            adminId: userId, // optional: only this user's rooms
+        },
+        orderBy: {
+            createdAt: "desc", // newest first
+        },
+        take: 3, // only 3 rooms
+        select: {
+            id: true,
+            slug: true,
+            createdAt: true,
+        },
+    });
+
+
+    return res.json({
+        success: true,
+        user: { 
+            ...userDetails,
+             joinedAt: formmatDate(joinedAt),
+              recentRooms: recentRooms.map(room => ({
+                id: room.id,
+                slug: room.slug,
+                createdAt: formmatDate(new Date(room.createdAt))
+              })) }
+    })
+})
 
 
 app.post('/signup', async (req, res) => {
@@ -190,16 +237,16 @@ app.get('/rooms', authMiddleware, async (req, res) => {
             where: {
                 adminId: userId
             }
-        }) 
+        })
         res.json({
             success: true,
             rooms: rooms.map((r) => ({
-                    slug: r.slug,
-                    createdAt: r.createdAt
-                
+                slug: r.slug,
+                createdAt: r.createdAt
+
             }))
         })
-        
+
     } catch (err) {
         console.error('Error fetching rooms', err)
         res.status(500).json({

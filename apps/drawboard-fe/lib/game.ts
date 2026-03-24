@@ -6,23 +6,58 @@ export class Game {
     private existingShapes: Shape[]
     private roomId: string
     private socket: WebSocket
-    private dragEndX = 0
-    private dragEndY = 0
 
     private mouseDown: boolean
     private startX = 0
     private startY = 0
+
+    private dragEndX = 0
+    private dragEndY = 0
     // private history: Shape[][] = []
     // private redoStack: Shape[][] = []
     // private maxHistorySize = 50
     private selectedTool: SelectedToolType
     private eraserRadius = 5 // Eraser detection radius
+    private tolerance = 5
+
+    private selectedElement: number | undefined = undefined
+    private selectedShape: Shape | undefined = undefined
     private getPoint(e: MouseEvent) {
         const rect = this.canvas.getBoundingClientRect()
         return {
             x: e.clientX - rect.left,
             y: e.clientY - rect.top
         }
+    }
+
+    private getBoundingBox(shape: Shape) {
+        if (shape.type === 'rect') {
+            const x = Math.min(shape.x, shape.x + shape.width)
+            const y = Math.min(shape.y, shape.y + shape.height)
+            const w = Math.abs(shape.width)
+            const h = Math.abs(shape.height)
+            return { x, y, w, h }
+        }
+        if (shape.type === 'circle') {
+            return { x: shape.centerX - shape.radius, y: shape.centerY - shape.radius, w: shape.radius * 2, h: shape.radius * 2 }
+        }
+        if (shape.type === 'line') {
+            const minX = Math.min(shape.initialX, shape.finalX)
+            const minY = Math.min(shape.initialY, shape.finalY)
+            const w = Math.abs(shape.finalX - shape.initialX)
+            const h = Math.abs(shape.finalY - shape.initialY)
+            return { x: minX, y: minY, w, h }
+        }
+        if (shape.type === 'pencil') {
+            const xs = shape.points.map(p => p.x)
+            const ys = shape.points.map(p => p.y)
+            const minX = Math.min(...xs)
+            const minY = Math.min(...ys)
+            const w = Math.max(...xs) - minX
+            const h = Math.max(...ys) - minY
+            return { x: minX, y: minY, w, h }
+        }
+        return { x: 0, y: 0, w: 0, h: 0 }
     }
 
     private resizeCanvas = () => {
@@ -37,7 +72,7 @@ export class Game {
     }
 
     // Collision detection methods
-    private isPointInRectRing(x: number, y: number, rect: Rectangle): boolean {
+    private isPointNearRectangle(x: number, y: number, rect: Rectangle): boolean {
         const minX = Math.min(rect.x, rect.x + rect.width)
         const maxX = Math.max(rect.x, rect.x + rect.width)
         const minY = Math.min(rect.y, rect.y + rect.height)
@@ -61,11 +96,7 @@ export class Game {
         return !insideInner;
     }
 
-    private isPointInCircleRing(
-        x: number,
-        y: number,
-        circle: Circle,
-    ): boolean {
+    private isPointNearCircle(x: number, y: number, circle: Circle): boolean {
 
         const dx = x - circle.centerX;
         const dy = y - circle.centerY;
@@ -77,12 +108,7 @@ export class Game {
         return distSq <= outer && distSq >= inner;
     }
 
-    private isPointInCircle(x: number, y: number, circle: Circle): boolean {
-        const distance = Math.sqrt(
-            Math.pow(x - circle.centerX, 2) + Math.pow(y - circle.centerY, 2)
-        )
-        return distance <= circle.radius
-    }
+
 
     private isPointNearLine(x: number, y: number, line: Line): boolean {
         // Calculate distance from point to line segment
@@ -163,12 +189,12 @@ export class Game {
 
     }
 
-    private isPointInShape(x: number, y: number, shape: Shape): boolean {
+    private isPointNearShape(x: number, y: number, shape: Shape): boolean {
         if (shape.type === 'rect') {
-            return this.isPointInRectRing(x, y, shape)
+            return this.isPointNearRectangle(x, y, shape)
         }
         else if (shape.type === 'circle') {
-            return this.isPointInCircleRing(x, y, shape)
+            return this.isPointNearCircle(x, y, shape)
         }
         else if (shape.type === 'line') {
             return this.isPointNearLine(x, y, shape)
@@ -178,6 +204,156 @@ export class Game {
         }
         return false
     }
+
+
+
+    private isPointInRectangle(x: number, y: number, rect: Rectangle): boolean {
+        const minX = Math.min(rect.x, rect.x + rect.width)
+        const maxX = Math.max(rect.x, rect.x + rect.width)
+        const minY = Math.min(rect.y, rect.y + rect.height)
+        const maxY = Math.max(rect.y, rect.y + rect.height)
+
+        const isInside =
+            x >= minX - this.tolerance &&
+            x <= maxX + this.tolerance &&
+            y >= minY - this.tolerance &&
+            y <= maxY + this.tolerance;
+
+        if (!isInside) return false;
+        return true;
+    }
+    private isPointInLine(x: number, y: number, line: Line): boolean {
+        const A = x - line.initialX
+        const B = y - line.initialY
+        const C = line.finalX - line.initialX
+        const D = line.finalY - line.initialY
+
+        const dot = A * C + B * D
+        const lenSq = C * C + D * D
+        let param = -1
+
+        if (lenSq !== 0) param = dot / lenSq
+
+        let xx, yy
+
+        if (param < 0) {
+            xx = line.initialX
+            yy = line.initialY
+        } else if (param > 1) {
+            xx = line.finalX
+            yy = line.finalY
+        } else {
+            xx = line.initialX + param * C
+            yy = line.initialY + param * D
+        }
+
+        const dx = x - xx
+        const dy = y - yy
+        const distance = Math.sqrt(dx * dx + dy * dy)
+
+        return distance <= this.tolerance
+    }
+    private isPointInPencilStroke(x: number, y: number, pencil: Pencil): boolean {
+        for (let i = 0; i < pencil.points.length - 1; i++) {
+            const p1 = pencil.points[i]
+            const p2 = pencil.points[i + 1]
+
+            const A = x - p1.x
+            const B = y - p1.y
+            const C = p2.x - p1.x
+            const D = p2.y - p1.y
+
+            const dotProduct = A * C + B * D
+            const lenSquared = C * C + D * D
+
+            let param = -1
+
+            if (lenSquared !== 0) param = dotProduct / lenSquared
+
+            let xx, yy
+            if (param < 0) {
+                xx = p1.x
+                yy = p1.y
+            }
+            else if (param > 1) {
+                xx = p2.x
+                yy = p2.y
+
+            }
+            else {
+                xx = p1.x + param * C
+                yy = p1.y + param * D
+            }
+
+            const dx = x - xx
+            const dy = y - yy
+
+            const distanceSquared = dx * dx + dy * dy
+            if (distanceSquared <= (this.tolerance * this.tolerance)) {
+                return true
+            }
+
+
+        }
+        return false
+    }
+    private isPointInCircle(x: number, y: number, circle: Circle): boolean {
+        const distance = Math.sqrt(
+            Math.pow(x - circle.centerX, 2) + Math.pow(y - circle.centerY, 2)
+        )
+        return distance <= circle.radius + this.tolerance
+    }
+
+    private isPointInShape(x: number, y: number, shape: Shape): boolean {
+        if (shape.type === 'rect') {
+            return this.isPointInRectangle(x, y, shape)
+        }
+        else if (shape.type === 'circle') {
+            return this.isPointInCircle(x, y, shape)
+        }
+        else if (shape.type === 'line') {
+            return this.isPointInLine(x, y, shape)
+        }
+        else if (shape.type === 'pencil') {
+            return this.isPointInPencilStroke(x, y, shape)
+        }
+        return false
+    }
+
+    private updateElement(id: number, x: number, y: number) {
+        const shape = this.existingShapes[id]
+        if (!shape) return;
+
+        const newX = x - this.dragEndX
+        const newY = y - this.dragEndY
+        if (shape.type === 'rect') {
+            shape.x = newX
+            shape.y = newY
+
+            shape.width = Math.abs(shape.width)
+            shape.height = Math.abs(shape.height)
+        }
+        if (shape.type === 'circle') {
+            shape.centerX = newX
+            shape.centerY = newY
+
+        }
+        if (shape.type === 'line') {
+            const dx = newX - shape.initialX
+            const dy = newY - shape.initialY
+            shape.initialX += dx
+            shape.initialY += dy
+            shape.finalX += dx
+            shape.finalY += dy
+        }
+        if (shape.type === 'pencil') {
+            const dx = newX - shape.points[0].x
+            const dy = newY - shape.points[0].y
+            for (const p of shape.points) { p.x += dx; p.y += dy }
+
+        }
+    }
+
 
     // private pushHistory() {
     //     if (this.existingShapes.length >= 0) {
@@ -225,6 +401,35 @@ export class Game {
         const { x, y } = this.getPoint(e)
         this.startX = x
         this.startY = y
+        this.dragEndX = x
+        this.dragEndY = y
+        if (this.selectedTool === 'selection') {
+            this.selectedElement = this.existingShapes.findIndex((shape) => this.isPointInShape(x, y, shape))
+            console.log(this.selectedElement)
+            const shape = this.existingShapes[this.selectedElement] || undefined
+            this.selectedShape = structuredClone(shape)
+
+            if (!shape) return
+            if (shape.type === 'rect') {
+                const minX = Math.min(shape.x, shape.x + shape.width)
+                const minY = Math.min(shape.y, shape.y + shape.height)
+                this.dragEndX = x - minX
+                this.dragEndY = y - minY
+            }
+            else if (shape.type === 'circle') {
+                this.dragEndX = x - shape.centerX
+                this.dragEndY = y - shape.centerY
+            }
+            else if (shape.type === 'line') {
+                this.dragEndX = x - shape.initialX
+                this.dragEndY = y - shape.initialY
+            }
+            else if (shape.type === 'pencil') {
+                const first = shape.points[0]
+                this.dragEndX = x - first.x
+                this.dragEndY = y - first.y
+            }
+        }
 
         if (this.selectedTool === 'pencil') {
             const pencil: Pencil = {
@@ -285,6 +490,31 @@ export class Game {
             return
         }
 
+        else if (this.selectedTool === 'selection') {
+            if (this.selectedElement === undefined || this.selectedElement === -1) return
+
+            const updatedShape = this.existingShapes.find((shape, index) => index === this.selectedElement)
+            console.log('shape to move', updatedShape)
+            console.log('old shape', this.selectedShape)
+
+            if (!updatedShape) return
+
+
+            this.socket.send(JSON.stringify({
+                type: "update_shape",
+                shapeIndex: this.selectedElement,
+                updatedShape: JSON.stringify(updatedShape),
+                oldShape: JSON.stringify(this.selectedShape),
+                roomId: this.roomId
+            }))
+
+            this.selectedElement = undefined
+            this.selectedShape = undefined
+
+
+
+        }
+
         // console.log(e.clientX, e.clientY)
         if (!shape) {
             return
@@ -310,7 +540,7 @@ export class Game {
             // Find shapes that intersect with the eraser
             const shapesToRemove: number[] = []
             this.existingShapes.forEach((shape, index) => {
-                if (this.isPointInShape(x, y, shape)) {
+                if (this.isPointNearShape(x, y, shape)) {
                     shapesToRemove.push(index)
                 }
             })
@@ -338,6 +568,13 @@ export class Game {
             this.ctx.arc(x, y, this.eraserRadius, 0, Math.PI * 2)
             this.ctx.stroke()
             return
+        }
+
+        if (this.selectedTool === 'selection') {
+            if (this.selectedElement !== undefined && this.selectedElement !== -1) {
+
+                this.updateElement(this.selectedElement, x, y)
+            }
         }
 
         this.clearCanvas()
@@ -391,6 +628,22 @@ export class Game {
                     this.clearCanvas()
                 }
             }
+
+            else if (message.type === 'update_shape') {
+                // type: "update_shape",
+                // shapeIndex: this.selectedElement,
+                // updatedShape: JSON.stringify(updatedShape),
+                // oldShape: JSON.stringify(this.selectedShape),
+                // roomId: this.roomId 
+                // const shapeIndex = Number(message.shapeIndex)
+                const idx = this.existingShapes.findIndex(s => JSON.stringify(s) === message.oldShape)
+                if (idx == -1) return
+
+                const updatedShape = JSON.parse(message.updatedShape)
+                this.existingShapes[idx] = updatedShape
+                this.clearCanvas()
+
+            }
         }
     }
     // clearCanvas(existingShapes: Shape[] = [], canvas: HTMLCanvasElement) {
@@ -437,6 +690,23 @@ export class Game {
             }
 
         })
+
+
+        // draw selection highlight
+        if (this.selectedElement !== undefined && this.selectedElement !== -1) {
+            const s = this.existingShapes[this.selectedElement]
+            if (s) {
+                const { x, y, w, h } = this.getBoundingBox(s)
+                this.ctx.save()
+                const grad = 'rgba(173, 216, 230, 0.5)'
+                this.ctx.strokeStyle = grad
+                this.ctx.lineWidth = 2
+                this.ctx.setLineDash([6, 4])
+                this.ctx.strokeRect(x - 4, y - 4, w + 8, h + 8) // padding so outline isn't tight
+                this.ctx.setLineDash([])
+                this.ctx.restore()
+            }
+        }
 
         this.ctx.restore()
     }

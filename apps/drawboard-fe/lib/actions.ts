@@ -71,3 +71,17 @@ export async function joinRoom(formData: FormData) {
     redirect(`/canvas/${name}`)
 
 }
+
+export async function getAccountDetails(){
+    const token = await Authenticate()
+    if(!token) return null
+    const response = await axios.get(`${BACKEND_URL}/account`, {
+        headers: {Authorization: `Bearer ${token}`}
+
+    })
+    if(!response.data.success){
+        redirect('/signin')
+    }
+
+    return response.data.user
+}

@@ -1,6 +1,5 @@
 
 import DashboardPage from "@/components/dashboard-page"
-import { getRooms } from "@/lib/actions"
 
 
 

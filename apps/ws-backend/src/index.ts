@@ -105,7 +105,7 @@ wss.on('connection', function connection(ws, request) {
             })
 
         }
-        if(parsedData.type === 'erase') {
+        if (parsedData.type === 'erase') {
             const roomId = parsedData.roomId
             const shape = parsedData.shape
             const shapeIndex = parsedData.shapeIndex
@@ -126,6 +126,43 @@ wss.on('connection', function connection(ws, request) {
                     roomId: parsedData.roomId
                 }
             })
+        }
+
+        if (parsedData.type === 'update_shape') {
+            //     type: "update_shape",
+            //     shapeIndex: this.selectedElement,
+            //     updatedShape: JSON.stringify(updatedShape),
+            //     oldShape: JSON.stringify(this.selectedShape),
+            //     roomId: this.roomId
+
+            const roomId = parsedData.roomId
+            const oldShape = parsedData.oldShape
+            const updatedShape = parsedData.updatedShape
+            const shapeIndex = parsedData.shapeIndex
+
+            users.forEach((user: User) => {
+                if (user.rooms.includes(roomId) && user.ws !== ws) {
+                    user.ws.send(JSON.stringify({
+                        type: 'update_shape',
+                        shapeIndex,
+                        updatedShape,
+                        oldShape,
+                        roomId
+                    }))
+                }
+            })
+            await prisma.chat.updateMany({
+                where: {
+                    message: parsedData.oldShape,
+                    roomId: parsedData.roomId
+                }, 
+                data: {
+                    message: parsedData.updatedShape,
+                    roomId: parsedData.roomId
+                }
+            })
+
+
         }
     })
 
