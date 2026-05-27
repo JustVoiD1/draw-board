@@ -46,6 +46,11 @@ app.get('/account', authMiddleware, async (req, res) => {
     }
     const joinedAt = new Date(userDetails.joinedAt)
     const formmatDate = (date: Date) => date.toLocaleDateString('en-GB').replace(/(\d{4})$/, (year) => year.slice(-2));
+    const totalRooms = await prisma.room.count({
+        where: {
+            adminId: userId
+        }
+    })
 
     const recentRooms = await prisma.room.findMany({
         where: {
@@ -65,14 +70,16 @@ app.get('/account', authMiddleware, async (req, res) => {
 
     return res.json({
         success: true,
-        user: { 
+        user: {
             ...userDetails,
-             joinedAt: formmatDate(joinedAt),
-              recentRooms: recentRooms.map(room => ({
+            joinedAt: formmatDate(joinedAt),
+            totalRooms,
+            recentRooms: recentRooms.map(room => ({
                 id: room.id,
                 slug: room.slug,
                 createdAt: formmatDate(new Date(room.createdAt))
-              })) }
+            }))
+        }
     })
 })
 

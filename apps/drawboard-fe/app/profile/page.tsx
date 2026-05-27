@@ -36,6 +36,7 @@ export default async function ProfilePage() {
     console.log(profile)
 
     const recentRooms = profile.recenRooms;
+    const totalRooms = profile.totalRooms
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -55,14 +56,13 @@ export default async function ProfilePage() {
           </Card>
 
           <div className="grid gap-4 sm:grid-cols-1">
-            {stats.map((item) => (
-              <Card key={item.label}>
+              <Card key={"totalRooms"}>
                 <CardHeader>
-                  <CardDescription>{item.label}</CardDescription>
-                  <CardTitle className="text-2xl">{item.value}</CardTitle>
+                  <CardDescription>{'totalRooms'}</CardDescription>
+                  <CardTitle className="text-2xl">{profile.totalRooms}</CardTitle>
                 </CardHeader>
               </Card>
-            ))}
+            
           </div>
 
          <RecentRooms recentRooms={profile.recentRooms} /> 

@@ -11,7 +11,7 @@ const Sidebar = () => {
                 <CreateRoomButton/>
                 <JoinRoomButton/>
                 <Link href={'/profile'}>
-                    <Button variant="ghost" className="w-full justify-start">Profile</Button>
+                    <Button variant="ghost" className="w-full pl-4 py-4 justify-start">Profile</Button>
                 </Link>
                 <LogoutButton />
             </nav>

@@ -53,7 +53,7 @@ const MainContent = ({
                     {filteredRooms.map(room => (
                         <Card
                             key={room.slug as string}
-                            className="cursor-pointer hover:shadow-lg transition"
+                            className="hover:shadow-lg transition"
 
                         >
                             <CardHeader>
@@ -64,7 +64,7 @@ const MainContent = ({
                             </CardHeader>
                             <CardContent>
                                 <Link href={`/canvas/${room.slug}`}>
-                                <Button className="w-full">Join Room</Button>
+                                <Button className="w-full cursor-pointer">Join Room</Button>
                                 </Link>
                             </CardContent>
                         </Card>

@@ -1,23 +1,28 @@
 import Link from 'next/link'
 import { Button } from '../ui/button'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, Pencil } from 'lucide-react'
 import { ModeToggle } from '../mode-toggle'
+import { Sheet, SheetHeader, SheetTitle } from '../ui/sheet'
 
 const Header = () => {
   return (
     <header className="sticky top-0 z-10 border-b border-border bg-background/80 backdrop-blur">
-        <div className="mx-auto flex h-14 w-full max-w-6xl items-center justify-between px-4">
-          <div className="flex items-center gap-2">
-            <Link href="/dashboard">
-              <Button variant="ghost" size="sm" className="gap-1.5">
-                <ArrowLeft className="h-4 w-4" />
-                Dashboard
-              </Button>
-            </Link>
-          </div>
-          <ModeToggle />
+      <div className="flex w-full items-center justify-between px-4 py-3">
+        <div className="flex items-center gap-2">
+          <Link href="/dashboard">
+            <Sheet>
+              <SheetHeader>
+                <SheetTitle><div className="flex items-center space-x-2">
+                  <Pencil className="h-6 w-6 text-slate-900 dark:text-white" />
+                  <span className="text-xl font-bold text-slate-900 dark:text-white">DrawBoard</span>
+                </div></SheetTitle>
+              </SheetHeader>
+            </Sheet>
+          </Link>
         </div>
-      </header>
+        <ModeToggle />
+      </div>
+    </header>
   )
 }
 
