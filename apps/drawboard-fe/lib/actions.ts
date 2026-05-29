@@ -48,7 +48,6 @@ export async function getRooms(): Promise<Room[]> {
 
 export async function createRoom(formData: FormData) {
     const name = formData.get('name') || ''
-    console.log(name)
     const token = await getToken()
     const res = await axios.post(`${BACKEND_URL}/room`, {
         name
@@ -63,7 +62,6 @@ export async function createRoom(formData: FormData) {
 
 export async function joinRoom(formData: FormData) {
     const name = formData.get('name') || ''
-    console.log(name)
     const token = await getToken()
    if(!token) {
     redirect('/signin')

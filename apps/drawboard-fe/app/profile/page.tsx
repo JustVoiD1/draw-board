@@ -33,7 +33,6 @@ const recentRooms = [
 export default async function ProfilePage() {
 
     const profile = await getAccountDetails()
-    console.log(profile)
 
     const recentRooms = profile.recenRooms;
     const totalRooms = profile.totalRooms

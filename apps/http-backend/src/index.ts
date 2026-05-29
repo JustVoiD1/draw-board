@@ -6,7 +6,6 @@ import { authMiddleware } from "./middleware";
 import { prisma } from "@repo/db"
 import { hashPassword, comparePassword } from "@repo/backend-common/config"
 import cors from "cors"
-console.log('JWT secret: ', JWT_SECRET)
 const port = 4000
 const app = express()
 app.use(express.json())
@@ -15,7 +14,6 @@ app.use(cors())
 app.get(`/health`, async (req, res) => {
     const users = await prisma.user.findMany()
 
-    console.log('OK')
     res.json({
         success: true,
         status: 'ok'

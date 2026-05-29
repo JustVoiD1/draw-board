@@ -58,7 +58,7 @@ wss.on('connection', function connection(ws, request) {
     ws.on('error', console.error)
     ws.on('close', function close() {
         users = users.filter(u => u.ws !== ws)
-        console.log("Users: ", users.length)
+        // console.log("Users: ", users.length)
     })
     ws.on('message', async function message(data) {
         // {
@@ -67,16 +67,16 @@ wss.on('connection', function connection(ws, request) {
         // }
         const parsedData = JSON.parse(data as unknown as string)
         if (parsedData.type === 'join_room') {
-            console.log('join message')
+            // console.log('join message')
             const user = users.find(x => x.ws === ws);
 
             user?.rooms.push(parsedData.roomId)
-            console.log("Users: ", users.length)
+            // console.log("Users: ", users.length)
         }
         if (parsedData.type === 'leave_room') {
-            console.log('leave message')
+            // console.log('leave message')
             const user = users.find(x => x.ws === ws);
-            console.log(`user found`)
+            // console.log(`user found`)
             if (!user) {
                 return
             }

@@ -405,7 +405,7 @@ export class Game {
         this.dragEndY = y
         if (this.selectedTool === 'selection') {
             this.selectedElement = this.existingShapes.findIndex((shape) => this.isPointInShape(x, y, shape))
-            console.log(this.selectedElement)
+            // console.log(this.selectedElement)
             const shape = this.existingShapes[this.selectedElement] || undefined
             this.selectedShape = structuredClone(shape)
 
@@ -494,8 +494,8 @@ export class Game {
             if (this.selectedElement === undefined || this.selectedElement === -1) return
 
             const updatedShape = this.existingShapes.find((shape, index) => index === this.selectedElement)
-            console.log('shape to move', updatedShape)
-            console.log('old shape', this.selectedShape)
+            // console.log('shape to move', updatedShape)
+            // console.log('old shape', this.selectedShape)
 
             if (!updatedShape) return
 
@@ -579,7 +579,7 @@ export class Game {
 
         this.clearCanvas()
         this.ctx.strokeStyle = "rgba(255, 255, 255)"
-        console.log(this.selectedTool)
+        // console.log(this.selectedTool)
         if (this.selectedTool === 'rect') {
             this.ctx.strokeRect(this.startX, this.startY, width, height)
         }

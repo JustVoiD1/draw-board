@@ -1,6 +1,13 @@
 {
   "$schema": "https://turborepo.dev/schema.json",
   "ui": "tui",
+  "globalEnv": [
+    "DATABASE_URL",
+    "BACKEND_URL",
+    "WS_URL",
+    "NEXT_PUBLIC_BACKEND_URL",
+    "NEXT_PUBLIC_WS_URL"
+  ],
   "tasks": {
     "db:generate": {
       "cache": false
@@ -24,7 +31,9 @@
       "env": [
         "DATABASE_URL",
         "BACKEND_URL",
-        "WS_URL"
+        "WS_URL",
+        "NEXT_PUBLIC_BACKEND_URL",
+        "NEXT_PUBLIC_WS_URL"
       ],
       "outputs": [
         ".next/**",
@@ -44,6 +53,13 @@
     "dev": {
       "dependsOn": [
         "^db:generate"
+      ],
+      "env": [
+        "DATABASE_URL",
+        "BACKEND_URL",
+        "WS_URL",
+        "NEXT_PUBLIC_BACKEND_URL",
+        "NEXT_PUBLIC_WS_URL"
       ],
       "cache": false,
       "persistent": true

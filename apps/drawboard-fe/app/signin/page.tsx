@@ -81,7 +81,7 @@ return (
                 
                 <button 
                     type="submit"
-                    className='w-full bg-primary text-primary-foreground font-semibold py-2 rounded-md mt-4 hover:bg-primary/90 transition duration-200'
+                    className='w-full cursor-pointer bg-primary text-primary-foreground font-semibold py-2 rounded-md mt-4 hover:bg-primary/90 transition duration-200'
                 >
                     Sign In
                 </button>
