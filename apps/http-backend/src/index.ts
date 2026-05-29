@@ -6,6 +6,7 @@ import { authMiddleware } from "./middleware";
 import { prisma } from "@repo/db"
 import { hashPassword, comparePassword } from "@repo/backend-common/config"
 import cors from "cors"
+import { StringFilter } from "../../../packages/db/dist/generated/prisma/commonInputTypes";
 const port = 4000
 const app = express()
 app.use(express.json())
@@ -131,7 +132,6 @@ app.post('/signup', async (req, res) => {
 
 app.post('/signin', async (req, res) => {
     const data = SigninSchema.safeParse(req.body)
-    console.log(data.data)
     if (!data.success) {
         return res.json({
             error: "Invalid format",
@@ -264,7 +264,6 @@ app.get('/rooms', authMiddleware, async (req, res) => {
 app.get(`/chats/:roomId`, async (req, res) => {
     const roomId = Number(req.params.roomId)
     try {
-        console.log("roomId: ", roomId)
         const messages = await prisma.chat.findMany({
             where: {
                 roomId: roomId
@@ -290,18 +289,31 @@ app.get(`/chats/:roomId`, async (req, res) => {
     }
 
 })
-app.get(`/room/:slug`, async (req, res) => {
+app.get(`/room/:slug`, authMiddleware, async (req, res) => {
     const slug = req.params.slug
     const room = await prisma.room.findFirst({
         where: {
-            slug
+            slug: slug as StringFilter<"Room">
         }
 
     })
-    res.json({
-        status: true,
-        room
+    if (room) {
+        return res.json({
+            status: true,
+            room: {
+                slug: room.slug,
+                id: room.id
+            }
+        })
+    }
+    return res.status(404).json({
+        status: false,
+        room: {
+            slug,
+            id: null
+        }
     })
+
 })
 
 app.listen(port, () => {

@@ -5,6 +5,9 @@
     "build": "dotenv -- turbo run build",
     "dev": "dotenv -- turbo run dev",
     "lint": "turbo run lint",
+    "start:web": "cd apps/drawboard-fe && pnpm run start",
+    "start:backend": "cd apps/http-backend && pnpm run start",
+    "start:ws": "cd apps/ws-backend && pnpm run start",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "check-types": "turbo run check-types"
   },

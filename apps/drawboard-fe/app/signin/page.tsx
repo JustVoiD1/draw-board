@@ -17,7 +17,6 @@ export async function SignIn(formData: FormData) {
             password
 
         })
-        console.log(usernameOrEmail, password)
         if (res.data.success) {
             isSuccess = true
             const cookieStore = await cookies()
