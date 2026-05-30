@@ -2,7 +2,7 @@ import express from "express";
 import jwt from "jsonwebtoken"
 import { JWT_SECRET } from "@repo/backend-common/config"
 import { CreateRoomSchema, SigninSchema, SignupSchema } from "@repo/common/types"
-import {prisma} from "@repo/db"
+import { prisma } from "@repo/db"
 import { hashPassword, comparePassword } from "@repo/backend-common/auth"
 import cors from "cors"
 import { authMiddleware } from "./middleware";
@@ -14,11 +14,18 @@ app.use(cors())
 
 app.get(`/health`, async (req, res) => {
     const users = await prisma.user.findMany()
-
-    res.json({
-        success: true,
-        status: 'ok'
+    if (users) {
+        return res.json({
+            success: true,
+            status: 'ok'
+        })
+    }
+    else return res.json({
+        success: false,
+        status: 'bad'
     })
+
+
 })
 app.get(`/me`, authMiddleware, async (req, res) => {
     return res.json({
