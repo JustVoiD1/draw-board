@@ -42,6 +42,12 @@ docker-compose*
 .DS_Store
 Thumbs.db
 
+# Bun specific files
+.bun
+bun.lock
+bun.lockb
+
+
 # Logs and diagnostics
 logs
 *.log

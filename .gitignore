@@ -5,6 +5,12 @@ node_modules
 .pnp
 .pnp.js
 
+# Bun specific files
+.bun/
+
+# Bun local dev cache/test artifacts
+**/*.trace
+
 # Local env files
 .env*
 .env.local
