@@ -43,9 +43,6 @@ docker-compose*
 Thumbs.db
 
 # Bun specific files
-.bun
-bun.lock
-bun.lockb
 
 
 # Logs and diagnostics
