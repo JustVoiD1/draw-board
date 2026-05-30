@@ -2,11 +2,11 @@ import express from "express";
 import jwt from "jsonwebtoken"
 import { JWT_SECRET } from "@repo/backend-common/config"
 import { CreateRoomSchema, SigninSchema, SignupSchema } from "@repo/common/types"
-import { authMiddleware } from "./middleware";
-import { prisma } from "@repo/db"
-import { hashPassword, comparePassword } from "@repo/backend-common/config"
+import {prisma} from "@repo/db"
+import { hashPassword, comparePassword } from "@repo/backend-common/auth"
 import cors from "cors"
-import { StringFilter } from "../../../packages/db/dist/generated/prisma/commonInputTypes";
+import { authMiddleware } from "./middleware";
+import { StringFilter } from "../../packages/db/generated/prisma/commonInputTypes";
 const port = 4000
 const app = express()
 app.use(express.json())

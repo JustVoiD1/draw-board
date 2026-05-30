@@ -1,0 +1,27 @@
+FROM oven/bun:1
+# Install pnpm globally on Alpine
+WORKDIR /app
+
+ARG DATABASE_URL
+ARG JWT_SECRET
+
+# Fix 4: Set them as ENV so Next.js build process can read them
+ENV DATABASE_URL=$DATABASE_URL
+ENV JWT_SECRET=$JWT_SECRET
+
+# Copy monorepo configuration and project structures
+COPY packages ./packages
+COPY ./bun.lock ./bun.lock
+COPY ./package.json ./package.json
+COPY ./turbo.json ./turbo.json
+
+COPY apps/ws-backend ./apps/ws-backend
+
+# Install dependencies using lockfile
+RUN bun install
+
+# Generate your database ORM types before compilation
+RUN bun run db:generate
+
+EXPOSE 8080
+CMD ["bun", "run", "start:ws"]

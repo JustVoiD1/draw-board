@@ -5,9 +5,13 @@
     "build": "dotenv -- turbo run build",
     "dev": "dotenv -- turbo run dev",
     "lint": "turbo run lint",
-    "start:web": "cd apps/drawboard-fe && pnpm run start",
-    "start:backend": "cd apps/http-backend && pnpm run start",
-    "start:ws": "cd apps/ws-backend && pnpm run start",
+    "db:generate": "cd packages/db && npx prisma generate && cd ../../",
+    "db:migrate": "cd packages/db && npx prisma migrate dev && cd ../../",
+
+    "build:fe": "cd apps/drawboard-fe && bun run build",
+    "start:fe": "cd apps/drawboard-fe && bun run start",
+    "start:http": "cd apps/http-backend && bun run start",
+    "start:ws": "cd apps/ws-backend && bun run start",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "check-types": "turbo run check-types"
   },
@@ -19,8 +23,12 @@
     "turbo": "^2.8.3",
     "typescript": "5.9.2"
   },
-  "packageManager": "pnpm@9.0.0",
+  "packageManager": "bun@1.3.9",
   "engines": {
     "node": ">=18"
-  }
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ]
 }

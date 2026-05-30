@@ -1,14 +1,10 @@
 {
   "compilerOptions": {
-    "outDir": "dist",
-    "rootDir": ".",
-    "declaration": true,
-    "declarationMap": true,
-    "module": "nodenext",
-    "moduleResolution": "NodeNext",
-    "target": "ES2020",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "target": "ES2023",
+    "strict": true,
     "esModuleInterop": true,
-    "strict": true
-  },
-  "include": ["src", "generated"]
+    "ignoreDeprecations": "6.0"
+  }
 }
