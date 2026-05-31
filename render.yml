@@ -42,4 +42,4 @@ services:
       - key: SERVER_HTTP_URL
         value: https://onrender.com
       - key: SERVER_WS_URL
-        value: https://onrender.com
+        value: wss://://onrender.com
