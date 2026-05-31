@@ -4,36 +4,41 @@ services:
     name: drawboard-http-backend
     runtime: image
     image:
-      name: docker.io/justvoid1/drawboard-http-backend:latest
+      url: docker.io/justvoid1/drawboard-http-backend:latest
     plan: free
     envVars:
       - key: PORT
         value: 4000
       - key: DATABASE_URL
+        sync: false
       - key: JWT_SECRET
+        sync: false
 
   - type: web
     name: drawboard-ws-backend
     runtime: image
     image:
-      name: docker.io/justvoid1/drawboard-ws-backend:latest
+      url: docker.io/justvoid1/drawboard-ws-backend:latest
     plan: free
     envVars:
       - key: PORT
         value: 8080
       - key: DATABASE_URL
+        sync: false
       - key: JWT_SECRET
+        sync: false
 
   - type: web
     name: drawboard-fe
     runtime: image
     image:
-      name: docker.io/justvoid1/drawboard-fe:latest
+      url: docker.io/justvoid1/drawboard-fe:latest
     plan: free
     envVars:
       - key: PORT
         value: 3000
       - key: DATABASE_URL
+        sync: false
       - key: SERVER_HTTP_URL
         value: http://drawboard-http-backend:4000
       - key: WS_URL
