@@ -3,7 +3,8 @@ services:
   - type: web
     name: drawboard-http-backend
     runtime: image
-    image: docker.io/justvoid1/drawboard-http-backend:latest
+    image:
+      name: docker.io/justvoid1/drawboard-http-backend:latest
     plan: free
     envVars:
       - key: PORT
@@ -14,7 +15,8 @@ services:
   - type: web
     name: drawboard-ws-backend
     runtime: image
-    image: docker.io/justvoid1/drawboard-ws-backend:latest
+    image:
+      name: docker.io/justvoid1/drawboard-ws-backend:latest
     plan: free
     envVars:
       - key: PORT
@@ -25,12 +27,12 @@ services:
   - type: web
     name: drawboard-fe
     runtime: image
-    image: docker.io/justvoid1/drawboard-fe:latest
+    image:
+      name: docker.io/justvoid1/drawboard-fe:latest
     plan: free
     envVars:
       - key: PORT
         value: 3000
-      # Re-inject runtime server-side paths for Render mesh network queries
       - key: DATABASE_URL
       - key: SERVER_HTTP_URL
         value: http://drawboard-http-backend:4000
