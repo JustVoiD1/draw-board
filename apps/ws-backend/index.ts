@@ -2,8 +2,21 @@ import { WebSocket, WebSocketServer } from "ws"
 import jwt, { JwtPayload } from "jsonwebtoken"
 import { JWT_SECRET } from "@repo/backend-common/config"
 import { prisma } from "@repo/db"
+import http from "http" 
+
 const PORT = 8080
-const wss = new WebSocketServer({ port: PORT })
+
+const server = http.createServer((req, res) => {
+    if (req.url === "/" || req.url === "/health") {
+        res.writeHead(200, { "Content-Type": "text/plain" });
+        res.end("WebSocket server is active and hot!");
+        return;
+    }
+    res.writeHead(404);
+    res.end();
+});
+
+const wss = new WebSocketServer({ server })
 console.log('ws server runnning on port: ', PORT)
 interface User {
     ws: WebSocket
@@ -170,3 +183,7 @@ wss.on('connection', function connection(ws, request) {
         type: "connected",
     }))
 })
+
+server.listen(PORT, () => {
+    console.log(`Base HTTP gateway listening on port ${PORT}`);
+});
