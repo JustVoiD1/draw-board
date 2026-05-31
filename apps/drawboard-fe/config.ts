@@ -9,7 +9,6 @@ if (!BACKEND_URL) {
   throw new Error('Backend URL missing'); 
 }
 
-// WebSocket Routing
 const WS_URL = isServer
   ? (process.env.SERVER_WS_URL || process.env.NEXT_PUBLIC_WS_URL)
   : process.env.NEXT_PUBLIC_WS_URL;
