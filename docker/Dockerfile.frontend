@@ -25,8 +25,8 @@ COPY apps/drawboard-fe ./apps/drawboard-fe
 
 RUN bun install
 ENV DATABASE_URL=$DATABASE_URL
-RUN bun run build
 RUN bun run db:generate
+RUN bun run build
 EXPOSE 3000
 
 CMD ["bun", "run", "start:fe"]

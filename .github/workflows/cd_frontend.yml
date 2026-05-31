@@ -1,8 +1,8 @@
 name: Deploy the frontend
 on:
   push:
-    branches: [ main ]
-jobs: 
+    branches: [main]
+jobs:
   build:
     runs-on: ubuntu-latest
     steps:
@@ -14,14 +14,16 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      
+
       - name: Build and push docker image
         uses: docker/build-push-action@v5
         with:
           context: .
           file: ./docker/Dockerfile.frontend
           push: true
-          tags: justvoid1/drawboard-fe:${{ github.sha }}
+          tags: |
+            justvoid1/drawboard-fe:${{ github.sha }}
+            justvoid1/drawboard-fe:latest
           build-args: |
             DATABASE_URL=${{ secrets.DATABASE_URL }}
             DIRECT_URL=${{ secrets.DIRECT_URL }}

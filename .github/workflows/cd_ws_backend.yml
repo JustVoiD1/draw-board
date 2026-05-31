@@ -21,7 +21,9 @@ jobs:
           context: .
           file: ./docker/Dockerfile.ws-backend
           push: true
-          tags: justvoid1/drawboard-ws-backend:${{ github.sha }}
+          tags: |
+            justvoid1/drawboard-ws-backend:${{ github.sha }}
+            justvoid1/drawboard-ws-backend:latest
           build-args: |
             DATABASE_URL=${{ secrets.DATABASE_URL }}
             JWT_SECRET=${{ secrets.JWT_SECRET }}
