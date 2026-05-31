@@ -40,6 +40,6 @@ services:
       - key: DATABASE_URL
         sync: false
       - key: SERVER_HTTP_URL
-        value: http://drawboard-http-backend:4000
-      - key: WS_URL
-        value: ws://drawboard-ws-backend:8080
+        value: https://onrender.com
+      - key: SERVER_WS_URL
+        value: https://onrender.com
