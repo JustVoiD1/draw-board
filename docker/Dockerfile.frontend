@@ -16,7 +16,6 @@ ENV NEXT_PUBLIC_BACKEND_URL=$NEXT_PUBLIC_BACKEND_URL
 ENV NEXT_PUBLIC_WS_URL=$NEXT_PUBLIC_WS_URL
 ENV DATABASE_URL=$DATABASE_URL
 
-# Fix 5: Copy package files first for caching, then install, then build
 COPY ./packages ./packages
 COPY ./bun.lock ./bun.lock
 COPY ./package.json ./package.json
