@@ -1,12 +1,16 @@
 'use client';
 import { ModeToggle } from "@/components/mode-toggle";
 import { Button } from "@/components/ui/button"
+import WarningModal from "@/components/warning-modal";
 import { ArrowRight, Pencil, Users, Zap, Download, Lock, Layers } from 'lucide-react';
 import Link from 'next/link';
+import { useState } from "react";
 
 export default function Home() {
+  const [showWarning, setShowWarning] = useState(true)
   return (
     <div className="min-h-screen bg-linear-to-b from-slate-50 to-white dark:from-slate-950 dark:to-slate-900">
+      
       <nav className="border-b bg-white/50 dark:bg-slate-950/50 backdrop-blur-sm sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
@@ -42,6 +46,8 @@ export default function Home() {
           </div>
         </div>
       </nav>
+
+      <WarningModal showWarning={showWarning} setShowWarning={setShowWarning}/>
 
       <main>
         <section className="relative overflow-hidden py-20 sm:py-32">
