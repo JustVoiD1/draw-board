@@ -205,8 +205,6 @@ export class Game {
         return false
     }
 
-
-
     private isPointInRectangle(x: number, y: number, rect: Rectangle): boolean {
         const minX = Math.min(rect.x, rect.x + rect.width)
         const maxX = Math.max(rect.x, rect.x + rect.width)
@@ -222,6 +220,7 @@ export class Game {
         if (!isInside) return false;
         return true;
     }
+
     private isPointInLine(x: number, y: number, line: Line): boolean {
         const A = x - line.initialX
         const B = y - line.initialY
@@ -253,6 +252,7 @@ export class Game {
 
         return distance <= this.tolerance
     }
+
     private isPointInPencilStroke(x: number, y: number, pencil: Pencil): boolean {
         for (let i = 0; i < pencil.points.length - 1; i++) {
             const p1 = pencil.points[i]
@@ -297,6 +297,7 @@ export class Game {
         }
         return false
     }
+
     private isPointInCircle(x: number, y: number, circle: Circle): boolean {
         const distance = Math.sqrt(
             Math.pow(x - circle.centerX, 2) + Math.pow(y - circle.centerY, 2)
@@ -353,6 +354,112 @@ export class Game {
 
         }
     }
+
+    // 1. Export current canvas state to a downloadable JSON file
+    public exportToJSON() {
+        const dataStr = JSON.stringify(this.existingShapes, null, 2);
+        const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+
+        const downloadLink = document.createElement('a');
+        downloadLink.href = dataUri;
+        downloadLink.download = `drawboard-${this.roomId}-${Date.now()}.json`;
+
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+    }
+
+    // 2. Import shapes back into the engine and redraw them
+    public importFromJSON(jsonString: string) {
+        try {
+            const parsedShapes = JSON.parse(jsonString) as Shape[];
+            if (Array.isArray(parsedShapes)) {
+                this.existingShapes = parsedShapes;
+
+                // Broadcast the full updated canvas state to the WebSocket backend
+                this.socket.send(JSON.stringify({ type: 'sync_canvas', roomId: this.roomId, shapes: this.existingShapes }));
+
+                // Trigger a clean redraw (Assuming you have a render/draw loop method)
+                this.clearCanvas();
+                // this.drawAllShapes(); 
+            }
+        } catch (e) {
+            console.error("Invalid canvas state JSON file structure", e);
+        }
+    }
+
+    public exportToSVG() {
+        // Read the bounding box of your canvas frame
+        const width = this.canvas.width;
+        const height = this.canvas.height;
+
+        // Initialize the vector SVG template string
+        // Look at line 8 in your code snippet and change it to this:
+        let svgContent = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" width="${width}" height="${height}">\n`;
+
+
+        // Default white background card layer
+        svgContent += `  <rect width="100%" height="100%" fill="#FFFFFF" />\n`;
+
+        // Map each distinct custom application canvas shape to standard SVG nodes
+        this.existingShapes.forEach((shape) => {
+            // Base stroke and color definitions (adjust values to match your canvas theme defaults)
+            const strokeColor = "#000000";
+            const strokeWidth = 2;
+
+            if (shape.type === 'rect') {
+                const x = Math.min(shape.x, shape.x + shape.width);
+                const y = Math.min(shape.y, shape.y + shape.height);
+                const w = Math.abs(shape.width);
+                const h = Math.abs(shape.height);
+                svgContent += `  <rect x="${x}" y="${y}" width="${w}" height="${h}" stroke="${strokeColor}" stroke-width="${strokeWidth}" fill="none" />\n`;
+            }
+            else if (shape.type === 'circle') {
+                svgContent += `  <circle cx="${shape.centerX}" cy="${shape.centerY}" r="${shape.radius}" stroke="${strokeColor}" stroke-width="${strokeWidth}" fill="none" />\n`;
+            }
+            else if (shape.type === 'line') {
+                svgContent += `  <line x1="${shape.initialX}" y1="${shape.initialY}" x2="${shape.finalX}" y2="${shape.finalY}" stroke="${strokeColor}" stroke-width="${strokeWidth}" />\n`;
+            }
+            else if (shape.type === 'pencil' && shape.points.length > 0) {
+                // Generate freehand drawings using continuous path vectors
+                const pathData = shape.points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ');
+                svgContent += `  <path d="${pathData}" stroke="${strokeColor}" stroke-width="${strokeWidth}" fill="none" stroke-linejoin="round" stroke-linecap="round" />\n`;
+            }
+        });
+
+        svgContent += `</svg>`;
+
+        // Generate down-pipe file link download
+        const blob = new Blob([svgContent], { type: 'image/svg+xml;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+
+        const downloadLink = document.createElement('a');
+        downloadLink.href = url;
+        downloadLink.download = `drawboard-${this.roomId}-${Date.now()}.svg`;
+
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+        URL.revokeObjectURL(url);
+    }
+
+    public exportToPNG() {
+        if (!this.canvas) return;
+
+        // 1. Convert the HTML5 canvas data into a Base64 image string
+        const dataUrl = this.canvas.toDataURL('image/png');
+
+        // 2. Create a temporary virtual anchor element
+        const downloadLink = document.createElement('a');
+        downloadLink.href = dataUrl;
+        downloadLink.download = `drawboard-${this.roomId}-${Date.now()}.png`;
+
+        // 3. Programmatically click it to trigger the browser download
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+    };
+
 
 
     // private pushHistory() {
@@ -627,6 +734,11 @@ export class Game {
                     this.existingShapes.splice(index, 1)
                     this.clearCanvas()
                 }
+            }
+
+            else if (message.type === 'sync_canvas') {
+                this.existingShapes = message.shapes
+                this.clearCanvas()
             }
 
             else if (message.type === 'update_shape') {

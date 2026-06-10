@@ -59,14 +59,16 @@ export default function Home() {
               </p>
               <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
                 <Link href={'/dashboard'}>
-                  <Button size="lg" className="text-base px-8 py-6 bg-slate-900 hover:bg-slate-800 text-white dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100">
+                  <Button size="lg" className="cursor-pointer text-base px-8 py-6 bg-slate-900 hover:bg-slate-800 text-white dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100">
                     Start Drawing Now
                     <ArrowRight className="ml-2 h-5 w-5" />
                   </Button>
                 </Link>
-                <Button size="lg" variant="outline" className="text-base px-8 py-6 border-2">
+                <Link href={'https://youtu.be/S3WJCJDDTps?si=-4eWEhdY8M_3fOnS'} target="_blank">
+                <Button size="lg" variant="outline" className="cursor-pointer text-base px-8 py-6 border-2">
                   Watch Demo
                 </Button>
+                </Link>
               </div>
             </div>
 

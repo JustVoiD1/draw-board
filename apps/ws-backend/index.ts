@@ -2,7 +2,7 @@ import { WebSocket, WebSocketServer } from "ws"
 import jwt, { JwtPayload } from "jsonwebtoken"
 import { JWT_SECRET } from "@repo/backend-common/config"
 import { prisma } from "@repo/db"
-import http from "http" 
+import http from "http"
 
 const PORT = 8080
 
@@ -96,6 +96,44 @@ wss.on('connection', function connection(ws, request) {
             user.rooms = user.rooms.filter(x => x !== parsedData.roomId)
 
         }
+        if (parsedData.type === 'sync_canvas') {
+            const roomId = parsedData.roomId
+            const shapes = parsedData.shapes // This is the full Array of Shapes
+
+            // 1. Broadcast the new state to all OTHER users currently inside the same room
+            users.forEach((user: User) => {
+                if (user.rooms.includes(roomId) && user.ws !== ws) {
+                    user.ws.send(JSON.stringify({
+                        type: 'sync_canvas',
+                        shapes: shapes,
+                        roomId: roomId
+                    }))
+                }
+            })
+
+            try {
+                // 2. Clear old state inside the Database for this room
+                await prisma.chat.deleteMany({
+                    where: { roomId: roomId }
+                })
+
+                // 3. Atomically write the new shape bundle to your Prisma history
+                // (Maps shapes into a continuous chat records structure)
+                if (shapes.length > 0) {
+                    const chatPayloads = shapes.map((shape: any) => ({
+                        roomId: roomId,
+                        userId: userId,
+                        message: typeof shape === 'string' ? shape : JSON.stringify(shape)
+                    }))
+
+                    await prisma.chat.createMany({
+                        data: chatPayloads
+                    })
+                }
+            } catch (error) {
+                console.error("Failed to sync canvas shapes array to DB:", error)
+            }
+        }
         if (parsedData.type === 'chat') {
             const roomId = parsedData.roomId
             const message = parsedData.message
@@ -168,7 +206,7 @@ wss.on('connection', function connection(ws, request) {
                 where: {
                     message: parsedData.oldShape,
                     roomId: parsedData.roomId
-                }, 
+                },
                 data: {
                     message: parsedData.updatedShape,
                     roomId: parsedData.roomId
