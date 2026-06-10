@@ -40,6 +40,10 @@
         "!.next/cache/**"
       ]
     },
+    "start": {
+      "cache": false,
+      "persistent": true
+    },
     "lint": {
       "dependsOn": [
         "^lint"

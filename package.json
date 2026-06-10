@@ -4,6 +4,7 @@
   "scripts": {
     "build": "dotenv -- turbo run build",
     "dev": "dotenv -- turbo run dev",
+    "start": "dotenv -- turbo run start",
     "lint": "turbo run lint",
     "db:generate": "cd packages/db && npx prisma generate && cd ../../",
     "db:migrate": "cd packages/db && npx prisma migrate dev && cd ../../",
