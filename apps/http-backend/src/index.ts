@@ -7,7 +7,7 @@ import { prisma } from "@repo/db"
 import { hashPassword, comparePassword } from "@repo/backend-common/auth"
 import cors from "cors"
 import { authMiddleware } from "./middleware";
-import { StringFilter } from "../../packages/db/generated/prisma/commonInputTypes";
+import { StringFilter } from "../../../packages/db/generated/prisma/commonInputTypes";
 const port = 4000
 const app = express()
 app.use(express.json())
@@ -173,7 +173,11 @@ app.post('/signin', async (req, res) => {
 
         const token = await new SignJWT({
             userId: user.id
-        }).sign(JWT_SECRET)
+        })
+            .setProtectedHeader({ alg: "HS256" })     // Set the signing algorithm (required)
+            .setIssuedAt()                            // iat: current time
+            .setExpirationTime("2h")                  // exp: e.g., 2 hours, 1d, 7d
+            .sign(JWT_SECRET);  
         res.json({
             message: 'Signed in Successfuly',
             token,

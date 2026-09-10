@@ -1,11 +1,11 @@
 {
   "name": "http-backend",
   "version": "1.0.0",
-  "module": "index.ts",
+  "module": "src/index.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "bun index.ts",
-    "dev": "bun index.ts"
+    "start": "bun src/index.ts",
+    "dev": "bun src/index.ts"
   },
   "keywords": [],
   "author": "",
