@@ -1,6 +1,7 @@
 import express from "express";
-import jwt from "jsonwebtoken"
-import { JWT_SECRET } from "@repo/backend-common/config"
+// import jwt from "jsonwebtoken"
+import {SignJWT} from "jose"
+import { JWT_SECRET as RAW_JWT_SECRET } from "@repo/backend-common/config"
 import { CreateRoomSchema, SigninSchema, SignupSchema } from "@repo/common/types"
 import { prisma } from "@repo/db"
 import { hashPassword, comparePassword } from "@repo/backend-common/auth"
@@ -11,7 +12,7 @@ const port = 4000
 const app = express()
 app.use(express.json())
 app.use(cors())
-
+const JWT_SECRET = new TextEncoder().encode(RAW_JWT_SECRET)
 app.get(`/health`, async (req, res) => {
     const users = await prisma.user.findMany()
     if (users) {
@@ -170,9 +171,9 @@ app.post('/signin', async (req, res) => {
             return
         }
 
-        const token = jwt.sign({
+        const token = await new SignJWT({
             userId: user.id
-        }, JWT_SECRET)
+        }).sign(JWT_SECRET)
         res.json({
             message: 'Signed in Successfuly',
             token,
