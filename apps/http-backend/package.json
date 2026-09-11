@@ -6,6 +6,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "bun src/index.ts",
     "dev": "bun src/index.ts",
+    "build:vercel": "cd ../.. && bun run db:generate && bun build apps/http-backend/src/index.ts --outfile apps/http-backend/dist/index.js --target node --format esm",
     "check-types": "tsc --noEmit"
   },
   "keywords": [],

@@ -1,17 +1,17 @@
 {
   "version": 2,
   "installCommand": "cd ../.. && bun install",
-  "buildCommand": "cd ../.. && bun run db:generate",
+  "buildCommand": "bun run build:vercel",
   "builds": [
     {
-      "src": "src/index.ts",
+      "src": "dist/index.js",
       "use": "@vercel/node"
     }
   ],
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "src/index.ts"
+      "dest": "dist/index.js"
     }
   ]
 }
