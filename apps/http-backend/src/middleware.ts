@@ -1,4 +1,8 @@
-import type { NextFunction, Request, Response } from "express";
+import type {
+  NextFunction,
+  Request,
+  Response,
+} from "express-serve-static-core";
 // import jwt, {JwtPayload} from "jsonwebtoken"
 import { jwtVerify, JWTPayload } from "jose";
 // const JWT_SECRET = process.env.JWT_SECRET!

@@ -1,4 +1,5 @@
-import express, { type Express } from "express";
+import express from "express";
+import type { Application } from "express-serve-static-core";
 // import jwt from "jsonwebtoken"
 import { SignJWT } from "jose";
 import { JWT_SECRET as RAW_JWT_SECRET } from "@repo/backend-common/config";
@@ -12,7 +13,7 @@ import { hashPassword, comparePassword } from "@repo/backend-common/auth";
 import cors from "cors";
 import { authMiddleware } from "./middleware.js";
 const port = Number(process.env.PORT) || 4000;
-const app: Express = express();
+const app: Application = express();
 app.use(express.json());
 app.use(cors());
 const JWT_SECRET = new TextEncoder().encode(RAW_JWT_SECRET);
