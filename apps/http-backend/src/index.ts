@@ -1,12 +1,11 @@
 import express from "express";
-// import jwt from "jsonwebtoken"
 import {SignJWT} from "jose"
 import { JWT_SECRET as RAW_JWT_SECRET } from "@repo/backend-common/config"
 import { CreateRoomSchema, SigninSchema, SignupSchema } from "@repo/common/types"
 import { prisma } from "@repo/db"
 import { hashPassword, comparePassword } from "@repo/backend-common/auth"
 import cors from "cors"
-import { authMiddleware } from "./middleware.js";
+import { authMiddleware } from "./middleware";
 import {StringFilter} from "@repo/db/commonInputTypes"
 const port = 4000
 const app = express()
@@ -326,6 +325,34 @@ app.get(`/room/:slug`, authMiddleware, async (req, res) => {
         }
     })
 
+})
+
+app.delete(`/room/:slug`, authMiddleware, async (req, res) => {
+    const slug = req.params.slug
+
+    const room = await prisma.room.findFirst({
+        where: {
+            slug: slug as StringFilter<"Room">
+        }
+    })
+
+    if (!room) {
+        return res.status(404).json({
+            status: false,
+            message: "Room not found"
+        })
+    }
+
+    await prisma.room.delete({
+        where: {
+            id: room.id
+        }
+    })
+
+    return res.json({
+        status: true,
+        message: "Room deleted successfully"
+    })
 })
 
 app.listen(port, () => {

@@ -1,10 +1,11 @@
 import { WebSocket, WebSocketServer } from "ws"
-import jwt, { JwtPayload } from "jsonwebtoken"
-import { JWT_SECRET } from "@repo/backend-common/config"
+import { jwtVerify, JWTPayload } from "jose"
+import { JWT_SECRET as RAW_JWT_SECRET } from "@repo/backend-common/config"
 import { prisma } from "@repo/db"
 import http from "http"
 
 const PORT = 8080
+const JWT_SECRET = new TextEncoder().encode(RAW_JWT_SECRET)
 
 const server = http.createServer((req, res) => {
     if (req.url === "/" || req.url === "/health") {
@@ -28,18 +29,17 @@ let users: User[] = []
 
 
 
-function checkUser(token: string): string | null {
+async function checkUser(token: string): Promise<string | null> {
     try {
-        const decoded = jwt.verify(token, JWT_SECRET) as JwtPayload
-
-        if (typeof decoded === 'string') {
+        const { payload } = await jwtVerify(token, JWT_SECRET)
+        if (typeof payload.userId === 'string') {
+            return payload.userId;
+        }
+        
+        if (!payload || !payload.userId) {
             return null
         }
-        if (!decoded || !decoded.userId) {
-            return null
-        }
 
-        return decoded.userId
     } catch (err) {
         console.error(err)
         return null
@@ -48,7 +48,7 @@ function checkUser(token: string): string | null {
 
 }
 
-wss.on('connection', function connection(ws, request) {
+wss.on('connection', async function connection(ws, request) {
     const url = request.url
     if (!url) {
         return
@@ -56,7 +56,7 @@ wss.on('connection', function connection(ws, request) {
 
     const queryParams = new URLSearchParams(url.split('?')[1])
     const token = queryParams.get('token') ?? ""
-    const userId = checkUser(token)
+    const userId = await checkUser(token)
     if (!userId) {
         ws.close()
         return

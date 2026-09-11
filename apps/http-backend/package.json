@@ -13,18 +13,16 @@
   "type": "module",
   "description": "",
   "dependencies": {
+    "jose": "^6.2.12",
     "@repo/db": "workspace:*",
     "@types/cors": "^2.8.19",
+    "@repo/common": "workspace:*",
+    "@repo/backend-common": "workspace:*",
     "cors": "^2.8.6",
-    "express": "^5.2.1",
-    "jose": "^6.2.12",
-    "jsonwebtoken": "^9.0.3"
+    "express": "^5.2.1"
   },
   "devDependencies": {
-    "@repo/backend-common": "workspace:*",
-    "@repo/common": "workspace:*",
     "@repo/typescript-config": "workspace:*",
-    "@types/express": "^5.0.6",
-    "@types/jsonwebtoken": "^9.0.10"
+    "@types/express": "^5.0.6"
   }
 }

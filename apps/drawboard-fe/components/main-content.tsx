@@ -8,6 +8,7 @@ import { CardContent, CardDescription, CardHeader, CardTitle } from './ui/card'
 import { Card } from './ui/card'
 import Link from 'next/link'
 import CreateRoomButton from './create-room-button'
+import DeleteRoomButton from './delete-room-button'
 
 const MainContent = ({
     rooms
@@ -21,7 +22,7 @@ const MainContent = ({
             room.slug.toLowerCase().includes(query.toLowerCase())
         )
     }, [rooms, query])
-      
+
     return (
         <main className="flex-1 p-6 space-y-6">
             <div className="flex flex-col sm:flex-row gap-4 sm:items-center sm:justify-between">
@@ -46,7 +47,7 @@ const MainContent = ({
                             ? "No rooms created yet"
                             : "No rooms match your search"}
                     </p>
-                    <CreateRoomButton/>
+                    <CreateRoomButton />
                 </div>
             ) : (
                 <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -57,14 +58,18 @@ const MainContent = ({
 
                         >
                             <CardHeader>
-                                <CardTitle>{room.slug}</CardTitle>
+                                <div className='flex flex-wrap justify-between'>
+
+                                    <CardTitle>{room.slug}</CardTitle>
+                                    <DeleteRoomButton slug={room.slug}/>
+                                </div>
                                 <CardDescription>
                                     Created {new Date(room.createdAt).toLocaleString()}
                                 </CardDescription>
                             </CardHeader>
                             <CardContent>
                                 <Link href={`/canvas/${room.slug}`}>
-                                <Button className="w-full cursor-pointer">Join Room</Button>
+                                    <Button className="w-full cursor-pointer">Join Room</Button>
                                 </Link>
                             </CardContent>
                         </Card>

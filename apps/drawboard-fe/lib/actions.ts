@@ -44,7 +44,44 @@ export async function getRooms(): Promise<Room[]> {
     return response.data.rooms
 
 }
+export async function deleteRoom(slug: string){
+    const token = await Authenticate()
+    try {
+        await axios.delete(`${BACKEND_URL}/room/${encodeURIComponent(slug)}`, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        })
 
+        revalidatePath('/dashboard')
+
+        return {
+            success: true
+        }
+    } catch (error) {
+        if (axios.isAxiosError(error)) {
+            console.error(
+                'Delete room error:',
+                error.response?.data || error.message
+            )
+
+            return {
+                success: false,
+                error:
+                    error.response?.data?.error ||
+                    error.response?.data?.message ||
+                    'Failed to delete room'
+            }
+        }
+
+        console.error('Delete room error:', error)
+
+        return {
+            success: false,
+            error: 'Failed to delete room'
+        }
+    }
+}
 
 export async function createRoom(formData: FormData) {
     const name = formData.get('name') || ''
