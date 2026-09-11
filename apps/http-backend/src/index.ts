@@ -1,4 +1,4 @@
-import express, { type Express } from "express";
+import express from "express";
 // import jwt from "jsonwebtoken"
 import { SignJWT } from "jose";
 import { JWT_SECRET as RAW_JWT_SECRET } from "@repo/backend-common/config";
@@ -10,9 +10,9 @@ import {
 import { prisma } from "@repo/db";
 import { hashPassword, comparePassword } from "@repo/backend-common/auth";
 import cors from "cors";
-import { authMiddleware } from "./middleware.js";
+import { authMiddleware } from "./middleware";
 const port = Number(process.env.PORT) || 4000;
-const app: Express = express();
+const app: express.Express = express();
 app.use(express.json());
 app.use(cors());
 const JWT_SECRET = new TextEncoder().encode(RAW_JWT_SECRET);
@@ -84,13 +84,11 @@ app.get("/account", authMiddleware, async (req, res) => {
       ...userDetails,
       joinedAt: formmatDate(joinedAt),
       totalRooms,
-      recentRooms: recentRooms.map(
-        (room: { id: number; slug: string; createdAt: Date }) => ({
-          id: room.id,
-          slug: room.slug,
-          createdAt: formmatDate(new Date(room.createdAt)),
-        }),
-      ),
+      recentRooms: recentRooms.map((room) => ({
+        id: room.id,
+        slug: room.slug,
+        createdAt: formmatDate(new Date(room.createdAt)),
+      })),
     },
   });
 });
@@ -255,7 +253,7 @@ app.get("/rooms", authMiddleware, async (req, res) => {
     });
     res.json({
       success: true,
-      rooms: rooms.map((r: { slug: string; createdAt: Date }) => ({
+      rooms: rooms.map((r) => ({
         slug: r.slug,
         createdAt: r.createdAt,
       })),

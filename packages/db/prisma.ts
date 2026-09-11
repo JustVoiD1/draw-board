@@ -1,4 +1,4 @@
-import { PrismaClient } from "./generated/prisma/client.js";
+import { PrismaClient } from "./generated/prisma/client";
 import { PrismaNeon } from "@prisma/adapter-neon";
 
 const databaseUrl = process.env.DATABASE_URL;
@@ -23,4 +23,4 @@ if (process.env.NODE_ENV !== "production") {
 
 export type Prisma = PrismaClient;
 export type StringFilter =
-  import("./generated/prisma/commonInputTypes.js").StringFilter;
+  import("./generated/prisma/commonInputTypes").StringFilter;
