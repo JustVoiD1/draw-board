@@ -7,7 +7,8 @@ import { prisma } from "@repo/db"
 import { hashPassword, comparePassword } from "@repo/backend-common/auth"
 import cors from "cors"
 import { authMiddleware } from "./middleware";
-import { StringFilter } from "../../../packages/db/generated/prisma/commonInputTypes";
+// import { StringFilter } from "../../../packages/db/generated/prisma/commonInputTypes";
+import {StringFilter} from "@repo/db/commonInputTypes"
 const port = 4000
 const app = express()
 app.use(express.json())
