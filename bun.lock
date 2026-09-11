@@ -46,8 +46,6 @@
       "name": "http-backend",
       "version": "1.0.0",
       "dependencies": {
-        "@repo/backend-common": "workspace:*",
-        "@repo/common": "workspace:*",
         "@repo/db": "workspace:*",
         "@types/cors": "^2.8.19",
         "cors": "^2.8.6",
@@ -56,6 +54,8 @@
         "jsonwebtoken": "^9.0.3",
       },
       "devDependencies": {
+        "@repo/backend-common": "workspace:*",
+        "@repo/common": "workspace:*",
         "@repo/typescript-config": "workspace:*",
         "@types/express": "^5.0.6",
         "@types/jsonwebtoken": "^9.0.10",
