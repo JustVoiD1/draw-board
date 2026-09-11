@@ -2,13 +2,13 @@
   "name": "@repo/db",
   "version": "1.0.0",
   "scripts": {
+    "postinstall": "prisma generate",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:deploy": "prisma migrate deploy"
   },
   "exports": {
-    ".": "./prisma.ts",
-    "./commonInputTypes": "./generated/prisma/commonInputTypes.ts"
+    ".": "./prisma.ts"
   },
   "keywords": [],
   "author": "",
