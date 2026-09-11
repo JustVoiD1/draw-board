@@ -1,0 +1,17 @@
+{
+  "version": 2,
+  "installCommand": "bun install",
+  "buildCommand": "cd apps/http-backend && bun run build:vercel",
+  "builds": [
+    {
+      "src": "apps/http-backend/dist/index.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "apps/http-backend/dist/index.js"
+    }
+  ]
+}
