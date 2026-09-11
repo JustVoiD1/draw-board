@@ -6,7 +6,7 @@ import { CreateRoomSchema, SigninSchema, SignupSchema } from "@repo/common/types
 import { prisma } from "@repo/db"
 import { hashPassword, comparePassword } from "@repo/backend-common/auth"
 import cors from "cors"
-import { authMiddleware } from "./middleware";
+import { authMiddleware } from "./middleware.js";
 import {StringFilter} from "@repo/db/commonInputTypes"
 const port = 4000
 const app = express()
