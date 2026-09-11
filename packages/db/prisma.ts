@@ -1,10 +1,12 @@
 import { PrismaClient } from "./generated/prisma/client.js";
 import { PrismaNeon } from "@prisma/adapter-neon";
 
-const databaseUrl = process.env.DATABASE_URL;
+const databaseUrl = process.env.DATABASE_URL ?? process.env.DIRECT_URL;
 
 if (!databaseUrl) {
-  throw new Error("DATABASE_URL is required to initialize Prisma");
+  throw new Error(
+    "DATABASE_URL or DIRECT_URL is required to initialize Prisma",
+  );
 }
 
 const globalForPrisma = globalThis as typeof globalThis & {

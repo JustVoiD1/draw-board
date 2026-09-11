@@ -17,17 +17,19 @@ app.use(express.json());
 app.use(cors());
 const JWT_SECRET = new TextEncoder().encode(RAW_JWT_SECRET);
 app.get(`/health`, async (req, res) => {
-  const users = await prisma.user.findMany();
-  if (users) {
+  try {
+    await prisma.$queryRaw`SELECT 1`;
     return res.json({
       success: true,
       status: "ok",
     });
-  } else
+  } catch (error) {
+    console.error("Health check failed", error);
     return res.json({
       success: false,
       status: "bad",
     });
+  }
 });
 app.get(`/me`, authMiddleware, async (req, res) => {
   return res.json({
